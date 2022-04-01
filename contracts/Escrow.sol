@@ -27,7 +27,7 @@ contract Escrow{
         sellerDep+=amount;
     }
 
-    function completePayment() public {
+    function releaseEscrow() public {
         //require both buyer and seller deposited 2x inital item value
         //move .5 the buyers deposit to the seller
         //release both buyer and seller deposits

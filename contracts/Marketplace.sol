@@ -8,10 +8,14 @@ contract Marketplace{
         string ipfsHash;
         bool sold;
         uint256 itemId;
+        address escrowAddr;
     }
 
     //userWalletAddr => userListings
     mapping(address => Listing[]) userListings;
+
+    //listingId => Listing
+    mapping(uint256 => Listing) listings;
 
     uint256 idCounter = 0;
 
@@ -26,18 +30,28 @@ contract Marketplace{
         listing.sold = false;
         listing.itemId = idCounter;
 
-        idCounter++;
+        //Deploy new Escrow contract.
+        //listing.escrowAddr = 
+        //call sellerDeposit()
 
+        listings[idCounter] = listing;
         userListings[msg.sender].push(listing);
 
-        //Deploy new Escrow contract.
-        //call sellerDeposit()
+        idCounter++;
         
         emit newListing(name, description, price, ipfsHash, false, idCounter);
     }
 
     function getUserListings() public view returns(Listing[] memory){
         return userListings[msg.sender];
+    }
+
+    function purchase(uint256 tokenId) public{
+        //call buyerDeposit from Escrow
+    }
+
+    function releaseEscrow() public {
+        //call releaseEscrow from Escrow
     }
 
 }
