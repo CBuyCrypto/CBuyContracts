@@ -28,6 +28,8 @@ contract Marketplace{
 
         idCounter++;
 
+        //NEEDS TO CREATE A NEW ESCROW AND DO STUFF HERE!!!
+
         userListings[msg.sender].push(listing);
         
         emit newListing(name, description, price, ipfsHash, false, idCounter);
