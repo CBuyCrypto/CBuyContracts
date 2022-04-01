@@ -28,9 +28,10 @@ contract Marketplace{
 
         idCounter++;
 
-        //NEEDS TO CREATE A NEW ESCROW AND DO STUFF HERE!!!
-
         userListings[msg.sender].push(listing);
+
+        //Deploy new Escrow contract.
+        //call sellerDeposit()
         
         emit newListing(name, description, price, ipfsHash, false, idCounter);
     }
