@@ -23,7 +23,7 @@ contract Escrow{
 
     function sellerDeposit(uint256 amount) public {
         require(amount == itemValue*2);
-        cUSD.transferFrom(msg.sender, address(this), amount);
+        cUSD.transferFrom(msg.sender, address(this), amount);   //Note: need to approve
         sellerDep+=amount;
     }
 
@@ -31,6 +31,10 @@ contract Escrow{
         //require both buyer and seller deposited 2x inital item value
         //move .5 the buyers deposit to the seller
         //release both buyer and seller deposits
+    }
+
+    function getSellerDeposit() public view returns (uint256) {
+        return sellerDep;
     }
 }
 
