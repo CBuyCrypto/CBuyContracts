@@ -76,9 +76,19 @@ contract Marketplace{
         //call buyerDeposit from Escrow
     }
 
-    function releaseEscrow() public {
+    // listing id as a parameter 
+    // access it via listing id 
+    function releaseEscrow( uint256 listingid) public {
         //call releaseEscrow from Escrow
+        address escrow_add = listings[listingid].escrowAddr;
+        Escrow escrowContract = Escrow(escrow_add);  
+        escrowContract.releaseEscrow();
     }
+
+
+
+// function signature string should not have any spaces
+
 
 }
 
