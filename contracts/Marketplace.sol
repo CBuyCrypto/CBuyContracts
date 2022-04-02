@@ -5,12 +5,13 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 
 contract Marketplace{
+    enum ListingStatus{ AVAILABLE, SOLD, RECEIVED, INACTIVE }
     struct Listing{
         string name;
         string description;
         uint256 price;
         string ipfsHash;
-        bool sold;
+        ListingStatus status;
         uint256 itemId;
         address escrowAddr;
         uint256 createdOn;
@@ -21,20 +22,22 @@ contract Marketplace{
     mapping(address => Listing[]) userListings;
 
     //listingId => Listing
-    mapping(uint256 => Listing) listings;
+    mapping(uint256 => Listing) listingsMap;
 
     address[] private authorizedUsers;
     mapping(address => uint256) private authorizedUserBalance;
 
     uint256 idCounter = 0;
 
-    uint256 cBuyPercentage = 50000000000000000; // 5%
-
+    uint256 cBuyFraction = 40; // 5%
 
     constructor(address _cUSDAddr){
         cUSDAddr = _cUSDAddr;
         authorizedUsers.push(msg.sender);
     }
+    mapping(address => Listing[]) userPurchases;
+
+    Listing[] listingsArr;
 
     event newListing(string name, string description, uint256 price, string ipfsHash, bool sold, uint256 itemId);
 
@@ -46,7 +49,7 @@ contract Marketplace{
         listing.description = description;
         listing.price = price;
         listing.ipfsHash = ipfsHash;
-        listing.sold = false;
+        listing.status = ListingStatus.AVAILABLE;
         listing.itemId = idCounter;
         listing.createdOn = block.number;
 
@@ -68,8 +71,9 @@ contract Marketplace{
         escrowContract.sellerDeposit(listing.price * 2, msg.sender);
         require(escrowContract.getSellerDeposit() == listing.price * 2, "Seller deposit failed");
 
-        listings[idCounter] = listing;
+        listingsMap[idCounter] = listing;
         userListings[msg.sender].push(listing);
+        listingsArr.push(listing);
 
         idCounter++;
         
@@ -81,33 +85,33 @@ contract Marketplace{
     }
 
     function purchase(uint256 listingId) public{
-        Escrow escrowContract = Escrow(listings[listingId].escrowAddr);
+        Escrow escrowContract = Escrow(listingsMap[listingId].escrowAddr);
+        ERC20 cUSD = ERC20(cUSDAddr);
 
         // Get cUSD from buyer
-        ERC20 cUSD = ERC20(cUSDAddr);
-        require(cUSD.balanceOf(msg.sender) >= listings[listingId].price * 2);
-        cUSD.transferFrom(msg.sender, address(this), listings[listingId].price * 2);
+        require(cUSD.balanceOf(msg.sender) >= listingsMap[listingId].price * 2);
+        cUSD.transferFrom(msg.sender, address(this), listingsMap[listingId].price * 2);
 
         // Call buyerDeposit
-        cUSD.approve(listings[listingId].escrowAddr, listings[listingId].price * 2);    
-        escrowContract.buyerDeposit(listings[listingId].price * 2, msg.sender);
-        require(escrowContract.getBuyerDeposit() == listings[listingId].price * 2, "Buyer deposit failed");
+        cUSD.approve(listingsMap[listingId].escrowAddr, listingsMap[listingId].price * 2);    
+        escrowContract.buyerDeposit(listingsMap[listingId].price * 2, msg.sender);
+        userPurchases[msg.sender].push(listingsMap[listingId]);
+        require(escrowContract.getBuyerDeposit() == listingsMap[listingId].price * 2, "Buyer deposit failed");
 
-        listings[listingId].sold = true;
     }
 
     // listing id as a parameter 
     // access it via listing id 
     function releaseEscrow( uint256 listingId) public {
         //call releaseEscrow from Escrow
-        address escrow_add = listings[listingId].escrowAddr;
+        address escrow_add = listingsMap[listingId].escrowAddr;
         Escrow escrowContract = Escrow(escrow_add);  
         escrowContract.releaseEscrow();
-        _receiveFee(listings[listingId].price / cBuyPercentage);
+        _receiveFee(listingsMap[listingId].price / cBuyFraction);
     }
 
     function getListingInfo(uint256 listingId) public view returns (Listing memory) {
-        return listings[listingId];
+        return listingsMap[listingId];
     }
 
     function _receiveFee(uint256 totalFee) internal {
@@ -138,10 +142,20 @@ contract Marketplace{
         return false;
     }
 
-    function checkBalance() public returns (uint256) {
+    function checkBalance() public view returns (uint256) {
         return authorizedUserBalance[msg.sender];
     }
 
+    function getListings() public view returns(Listing[] memory){
+        return listingsArr;
+    }
+
+    function deactivateListing(uint256 itemId) public {
+        listingsMap[itemId].status = ListingStatus.INACTIVE;
+    }
+
+    function getUserListings(address wallet) public view returns(Listing[] memory){
+        return userPurchases[wallet];
+    }
+
 }
-
-

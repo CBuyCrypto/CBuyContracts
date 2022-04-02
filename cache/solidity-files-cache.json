@@ -185,8 +185,8 @@
       ]
     },
     "/Users/danielleavitt/Documents/CBuyContracts/contracts/Marketplace.sol": {
-      "lastModificationDate": 1648932116779,
-      "contentHash": "80fce54c8a2f90433c762a310a500735",
+      "lastModificationDate": 1648938925110,
+      "contentHash": "8ffb9d565015c1aa31431764a52fddbe",
       "sourceName": "contracts/Marketplace.sol",
       "solcConfig": {
         "version": "0.8.4",
@@ -223,8 +223,8 @@
       ]
     },
     "/Users/danielleavitt/Documents/CBuyContracts/contracts/Escrow.sol": {
-      "lastModificationDate": 1648931812165,
-      "contentHash": "47526011d7e339f4e8485dd7a1c13c60",
+      "lastModificationDate": 1648938705637,
+      "contentHash": "92d685c5adaa3b6713c9923e2dd63063",
       "sourceName": "contracts/Escrow.sol",
       "solcConfig": {
         "version": "0.8.4",
