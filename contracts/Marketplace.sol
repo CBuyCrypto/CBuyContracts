@@ -58,7 +58,7 @@ contract Marketplace{
         // Have to approve transfer first
         cUSD.approve(listing.escrowAddr, listing.price * 2);    
         escrowContract.sellerDeposit(listing.price * 2);
-        require(escrowContract.getSellerDeposit() == listing.price * 2, "Seller deposit fialed");
+        require(escrowContract.getSellerDeposit() == listing.price * 2, "Seller deposit failed");
 
         listings[idCounter] = listing;
         userListings[msg.sender].push(listing);
@@ -72,12 +72,26 @@ contract Marketplace{
         return userListings[msg.sender];
     }
 
-    function purchase(uint256 tokenId) public{
-        //call buyerDeposit from Escrow
+    function purchase(uint256 listingId) public{
+        Escrow escrowContract = Escrow(listings[listingId].escrowAddr);
+        ERC20 cUSD = ERC20(cUSDAddr);
+
+        // Get cUSD from buyer
+        require(cUSD.balanceOf(msg.sender) >= listings[listingId].price * 2);
+        cUSD.transferFrom(msg.sender, address(this), listings[listingId].price * 2);
+
+        // Call buyerDeposit
+        cUSD.approve(listings[listingId].escrowAddr, listings[listingId].price * 2);    
+        escrowContract.buyerDeposit(listings[listingId].price * 2);
+        require(escrowContract.getBuyerDeposit() == listings[listingId].price * 2, "Buyer deposit failed");
     }
 
     function releaseEscrow() public {
         //call releaseEscrow from Escrow
+    }
+
+    function getListingInfo(uint256 listingId) public returns (listing) {
+        return listings[listingId];
     }
 
 }
