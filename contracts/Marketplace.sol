@@ -62,7 +62,7 @@ contract Marketplace{
 
         // Connect to cUSD and transfer funds to marketplace contract
         ERC20 cUSD = ERC20(cUSDAddr);
-        require(cUSD.balanceOf(msg.sender) >= listing.price * 2,"Not high enough balance");
+        require(cUSD.balanceOf(msg.sender) >= listing.price * 2, "Not high enough balance");
         cUSD.transferFrom(msg.sender, address(this), listing.price * 2);
 
         // Call sellerDeposit function
