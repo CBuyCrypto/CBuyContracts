@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 
 contract Marketplace{
-    enum ListingStatus{ AVAILABLE, SOLD, RECIEVED, INACTIVE }
+    enum ListingStatus{ AVAILABLE, SOLD, RECEIVED, INACTIVE }
     struct Listing{
         string name;
         string description;
