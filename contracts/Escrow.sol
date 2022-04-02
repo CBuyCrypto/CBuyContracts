@@ -41,8 +41,8 @@ contract Escrow{
         require(sellerDep == itemValue*2);
 
         //move .5 the buyers deposit to the seller
-        cUSD.transferFrom(buyer, seller, 0.5 * buyerDep);
-        sellerDep-= 0.5*buyerDep;
+        cUSD.transferFrom(buyer, seller, buyerDep / 2);
+        sellerDep -= buyerDep / 2;
 
         //release both buyer and seller deposits
         cUSD.transferFrom(address(this), buyer, buyerDep);
@@ -51,5 +51,9 @@ contract Escrow{
 
     function getSellerDeposit() public view returns (uint256) {
         return sellerDep;
+    }
+
+    function getBuyerDeposit() public view returns (uint256) {
+        return buyerDep;
     }
 }
