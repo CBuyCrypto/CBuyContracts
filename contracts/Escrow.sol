@@ -14,24 +14,38 @@ contract Escrow{
 
     uint256 buyerDep = 0;
     uint256 sellerDep = 0;
+    address buyer = address(0); //buyer address 
+    address seller = address(0); // seller address 
+
 
     function buyerDeposit(uint256 amount) public {
         require(amount == itemValue*2);
         cUSD.transferFrom(msg.sender, address(this), amount);
         buyerDep+=amount;
+        buyer = msg.sender; 
     }
 
     function sellerDeposit(uint256 amount) public {
         require(amount == itemValue*2);
         cUSD.transferFrom(msg.sender, address(this), amount);
         sellerDep+=amount;
+        seller = msg.seller; 
     }
 
     function releaseEscrow() public {
+        require(seller != address(0)); //buyer address 
+        require(buyer != address(0)); // seller address 
+
         //require both buyer and seller deposited 2x inital item value
+        require(buyerDep == itemValue*2);
+        require(sellerDep == itemValue*2);
+
         //move .5 the buyers deposit to the seller
+        cUSD.transferFrom(buyer, seller, 0.5 * buyerDep);
+        sellerDep-= 0.5*buyerDep
+
         //release both buyer and seller deposits
+        cUSD.transferFrom(address(this), buyer, sellerDep);
+        cUSD.transferFrom(address(this), seller, buyerDep);
     }
 }
-
-
