@@ -91,13 +91,14 @@ contract Marketplace{
         escrowContract.buyerDeposit(listingsMap[listingId].price * 2);
         userPurchases[msg.sender].push(listingsMap[listingId]);
         require(escrowContract.getBuyerDeposit() == listingsMap[listingId].price * 2, "Buyer deposit failed");
+
     }
 
     // listing id as a parameter 
     // access it via listing id 
-    function releaseEscrow( uint256 listingId) public {
+    function releaseEscrow( uint256 listingid) public {
         //call releaseEscrow from Escrow
-        address escrow_add = listingsMap[listingId].escrowAddr;
+        address escrow_add = listingsMap[listingid].escrowAddr;
         Escrow escrowContract = Escrow(escrow_add);  
         escrowContract.releaseEscrow();
     }
