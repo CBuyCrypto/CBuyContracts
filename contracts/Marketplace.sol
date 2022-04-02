@@ -19,7 +19,7 @@ contract Marketplace{
 
     address cUSDAddr;
     //userWalletAddr => userListings
-    mapping(address => Listing[]) userListings;
+    mapping(address => uint256[]) userListings;
 
     //listingId => Listing
     mapping(uint256 => Listing) listingsMap;
@@ -35,7 +35,7 @@ contract Marketplace{
         cUSDAddr = _cUSDAddr;
         authorizedUsers.push(msg.sender);
     }
-    mapping(address => Listing[]) userPurchases;
+    mapping(address => uint256[]) userPurchases;
 
     Listing[] listingsArr;
 
@@ -72,7 +72,7 @@ contract Marketplace{
         require(escrowContract.getSellerDeposit() == listing.price * 2, "Seller deposit failed");
 
         listingsMap[idCounter] = listing;
-        userListings[msg.sender].push(listing);
+        userListings[msg.sender].push(idCounter);
         listingsArr.push(listing);
 
         idCounter++;
@@ -81,10 +81,16 @@ contract Marketplace{
     }
 
     function getUserListings() public view returns(Listing[] memory){
-        return userListings[msg.sender];
+        uint256[] memory ids= userListings[msg.sender];
+        Listing[] memory listings=new Listing[](ids.length);
+        for (uint i=0; i<ids.length; i++) {
+            listings[i]=listingsMap[ids[i]];
+        }
+        return listings;
     }
 
     function purchase(uint256 listingId) public{
+        listingsMap[listingId].status = ListingStatus.SOLD;
         Escrow escrowContract = Escrow(listingsMap[listingId].escrowAddr);
         ERC20 cUSD = ERC20(cUSDAddr);
 
@@ -95,7 +101,7 @@ contract Marketplace{
         // Call buyerDeposit
         cUSD.approve(listingsMap[listingId].escrowAddr, listingsMap[listingId].price * 2);    
         escrowContract.buyerDeposit(listingsMap[listingId].price * 2, msg.sender);
-        userPurchases[msg.sender].push(listingsMap[listingId]);
+        userPurchases[msg.sender].push(listingId);
         require(escrowContract.getBuyerDeposit() == listingsMap[listingId].price * 2, "Buyer deposit failed");
 
     }
@@ -103,6 +109,7 @@ contract Marketplace{
     // listing id as a parameter 
     // access it via listing id 
     function releaseEscrow( uint256 listingId) public {
+        listingsMap[listingId].status = ListingStatus.RECEIVED;
         //call releaseEscrow from Escrow
         address escrow_add = listingsMap[listingId].escrowAddr;
         Escrow escrowContract = Escrow(escrow_add);  
@@ -155,7 +162,12 @@ contract Marketplace{
     }
 
     function getUserListings(address wallet) public view returns(Listing[] memory){
-        return userPurchases[wallet];
+        uint256[] memory ids= userListings[wallet];
+        Listing[] memory listings=new Listing[](ids.length);
+        for (uint i=0; i<ids.length; i++) {
+            listings[i]=listingsMap[ids[i]];
+        }
+        return listings;
     }
 
 }
