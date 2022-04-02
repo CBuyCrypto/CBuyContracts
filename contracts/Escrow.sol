@@ -29,7 +29,7 @@ contract Escrow{
         require(amount == itemValue*2);
         cUSD.transferFrom(msg.sender, address(this), amount);
         sellerDep+=amount;
-        seller = msg.seller; 
+        seller = msg.sender; 
     }
 
     function releaseEscrow() public {
