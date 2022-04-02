@@ -45,7 +45,7 @@ contract Escrow{
         sellerDep-= 0.5*buyerDep
 
         //release both buyer and seller deposits
-        cUSD.transferFrom(address(this), buyer, sellerDep);
-        cUSD.transferFrom(address(this), seller, buyerDep);
+        cUSD.transferFrom(address(this), buyer, buyerDep);
+        cUSD.transferFrom(address(this), seller, sellerDep);
     }
 }
